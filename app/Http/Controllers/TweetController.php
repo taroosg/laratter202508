@@ -7,59 +7,67 @@ use Illuminate\Http\Request;
 
 class TweetController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
+  /**
+   * Display a listing of the resource.
+   */
+  public function index()
+  {
+    $tweets = Tweet::with('user')->latest()->get();
+    return view('tweets.index', compact('tweets'));
+  }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+  /**
+   * Show the form for creating a new resource.
+   */
+  public function create()
+  {
+    return view('tweets.create');
+  }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+  /**
+   * Store a newly created resource in storage.
+   */
+  public function store(Request $request)
+  {
+    // 送られてきたデータが正しいかどうか検証する（バリデーション）
+    $request->validate([
+      'tweet' => 'required|max:255',
+    ]);
+    // DBにデータを保存する
+    $request->user()->tweets()->create($request->only('tweet'));
+    // 一覧画面に移動する
+    return redirect()->route('tweets.index');
+  }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Tweet $tweet)
-    {
-        //
-    }
+  /**
+   * Display the specified resource.
+   */
+  public function show(Tweet $tweet)
+  {
+    //
+  }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Tweet $tweet)
-    {
-        //
-    }
+  /**
+   * Show the form for editing the specified resource.
+   */
+  public function edit(Tweet $tweet)
+  {
+    //
+  }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Tweet $tweet)
-    {
-        //
-    }
+  /**
+   * Update the specified resource in storage.
+   */
+  public function update(Request $request, Tweet $tweet)
+  {
+    //
+  }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Tweet $tweet)
-    {
-        //
-    }
+  /**
+   * Remove the specified resource from storage.
+   */
+  public function destroy(Tweet $tweet)
+  {
+    //
+  }
 }
