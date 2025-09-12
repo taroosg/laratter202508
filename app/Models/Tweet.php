@@ -18,6 +18,11 @@ class Tweet extends Model
     return $this->belongsTo(User::class);
   }
 
+  public function comments()
+  {
+    return $this->hasMany(Comment::class)->orderBy('created_at', 'desc');
+  }
+
   // 多対多の連携の設定
   public function liked()
   {
