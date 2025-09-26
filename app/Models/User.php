@@ -9,40 +9,69 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+  /** @use HasFactory<\Database\Factories\UserFactory> */
+  use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
+  /**
+   * The attributes that are mass assignable.
+   *
+   * @var list<string>
+   */
+  protected $fillable = [
+    'name',
+    'email',
+    'password',
+  ];
+
+  /**
+   * The attributes that should be hidden for serialization.
+   *
+   * @var list<string>
+   */
+  protected $hidden = [
+    'password',
+    'remember_token',
+  ];
+
+  /**
+   * Get the attributes that should be cast.
+   *
+   * @return array<string, string>
+   */
+  protected function casts(): array
+  {
+    return [
+      'email_verified_at' => 'datetime',
+      'password' => 'hashed',
     ];
+  }
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+  // 一対多の連携の設定 自分が一
+  public function tweets()
+  {
+    return $this->hasMany(Tweet::class);
+  }
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+  public function comments()
+  {
+    return $this->hasMany(Comment::class);
+  }
+
+  // 多対多の連携の設定
+  public function likes()
+  {
+    return $this->belongsToMany(Tweet::class)->withTimestamps();
+  }
+
+  // フォローしている人を取得する関数
+  public function follows()
+  {
+    return $this->belongsToMany(User::class, 'follows', 'follow_id', 'follower_id');
+  }
+
+  // フォローされている人を取得する関数
+  public function followers()
+  {
+    return $this->belongsToMany(User::class, 'follows', 'follower_id', 'follow_id');
+  }
 }
