@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use App\Models\User;
+use App\Models\Tweet;
 
 class ProfileController extends Controller
 {
@@ -17,7 +18,27 @@ class ProfileController extends Controller
    */
   public function show(User $user)
   {
-    return view('profile.show', compact('user'));
+    // tweetを取得する処理
+    // 自分の場合→自分のtweetとフォローしている人のtweetを取得
+    // 自分以外の場合→その人のtweetを取得
+    if (auth()->user()->is($user)) {
+      $tweets = Tweet::query()
+        ->where('user_id', $user->id)  // 自分のツイート
+        ->orWhereIn('user_id', $user->follows->pluck('id')) // フォローしているユーザーのツイート
+        ->latest()
+        ->paginate(10);
+    } else {
+      // 他のユーザーの場合、そのユーザーのツイートのみを取得
+      $tweets = $user
+        ->tweets()
+        ->latest()
+        ->paginate(10);
+    }
+
+    // ユーザーのフォロワーとフォローしているユーザーを取得
+    $user->load(['follows', 'followers']);
+
+    return view('profile.show', compact('user', 'tweets'));
   }
 
   /**
